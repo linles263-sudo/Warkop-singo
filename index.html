@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warkop Singo - Kasir Digital Pro</title>
+  <title>Warkop Singo - Kasir Digital</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -35,6 +35,8 @@
     .btn-add{background:linear-gradient(135deg,#4caf50,#2e7d32);color:white;box-shadow:0 4px 12px rgba(76,175,80,0.3)}
     .btn-export{background:linear-gradient(135deg,#2196f3,#1976d2);color:white}
     .btn-reset{background:linear-gradient(135deg,#f44336,#d32f2f);color:white}
+    .btn-wa{background:linear-gradient(135deg,#25d366,#128c7e);color:white}
+    .btn-dev{background:linear-gradient(135deg,#ff9800,#f57c00);color:white}
     .btn-logout{background:rgba(255,255,255,0.2);color:white;font-size:12px;padding:6px 12px;width:auto;border-radius:8px}
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;backdrop-filter:blur(4px)}
     .modal-content{background:white;margin:15% auto;padding:25px;width:90%;max-width:400px;border-radius:20px;animation:slideUp 0.3s}
@@ -63,13 +65,27 @@
     .stat-value{font-size:20px;font-weight:700}
     .empty-state{text-align:center;padding:40px 20px;color:#999}
     .empty-state div{font-size:48px;margin-bottom:10px}
+    .lisensi-box{background:#fff3e0;border:2px solid #ff9800;border-radius:12px;padding:12px;margin:15px 0;font-size:12px}
+    .lisensi-box b{color:#e65100}
+    .overlay-expired{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:2000;display:none;backdrop-filter:blur(8px)}
+    .overlay-content{background:white;margin:30% auto;padding:30px;width:90%;max-width:400px;border-radius:20px;text-align:center}
   </style>
 </head>
 <body>
+  <!-- OVERLAY EXPIRED -->
+  <div id="overlayExpired" class="overlay-expired">
+    <div class="overlay-content">
+      <div style="font-size:48px;margin-bottom:15px">🔒</div>
+      <h2 style="color:#d32f2f;margin-bottom:10px">LISENSI EXPIRED</h2>
+      <p style="color:#666;margin-bottom:20px;font-size:14px">Masa aktif aplikasi sudah habis. Hubungi developer untuk perpanjang lisensi.</p>
+      <button class="btn btn-dev" onclick="perpanjangLisensi()">📱 HUBUNGI DEVELOPER</button>
+    </div>
+  </div>
+
   <!-- LOGIN -->
   <div id="loginBox" class="login-box">
     <h2>☕ WARKOP SINGO</h2>
-    <p>Kasir Digital Pro v2.0</p>
+    <p>Kasir Digital Pro v2.2</p>
     <div class="form-group">
       <label>Nama Kasir</label>
       <input type="text" id="namaKasir" placeholder="Masukkan nama anda">
@@ -77,9 +93,9 @@
     <div class="form-group">
       <label>Shift Kerja</label>
       <select id="shiftKasir">
-        <option value="Pagi">Pagi (06:00 - 14:00)</option>
-        <option value="Sore">Sore (14:00 - 22:00)</option>
-        <option value="Malam">Malam (22:00 - 06:00)</option>
+        <option value="Pagi">Pagi</option>
+        <option value="Sore">Sore</option>
+        <option value="Malam">Malam</option>
       </select>
     </div>
     <button class="btn btn-add" onclick="login()">MASUK APLIKASI</button>
@@ -138,10 +154,19 @@
 
     <div id="laporan" class="section">
       <div class="card">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
-          <button class="btn btn-export" onclick="exportExcel()">📊 Export Excel</button>
-          <button class="btn btn-reset" onclick="hapusSemuaLaporan()">🗑️ Hapus Data</button>
+        <div class="lisensi-box" id="boxLisensi">
+          <b>🔐 LISENSI <span id="statusLisensi">AKTIF</span></b><br>
+          Warkop: <span id="namaWarkop">WARKOP SINGO</span><br>
+          Aktif Sampai: <span id="masaAktif">31 Desember 2026</span><br>
+          <span id="sisaHari"></span>
+          Owner: <span id="namaOwner">085733333344</span>
+          <button id="btnPerpanjang" class="btn btn-dev" onclick="perpanjangLisensi()" style="display:none;margin-top:10px;padding:8px;font-size:12px">📱 PERPANJANG LISENSI</button>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
+          <button class="btn btn-export" onclick="exportExcel()">📊 Export</button>
+          <button class="btn btn-wa" onclick="kirimWA()">📱 WA Owner</button>
+        </div>
+        <button class="btn btn-reset" onclick="hapusSemuaLaporan()" style="margin-bottom:15px">🗑️ Hapus Data</button>
         <div class="stats-grid">
           <div class="stat-card" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb)">
             <div class="stat-label">Omset Hari Ini</div>
@@ -221,6 +246,56 @@ let shiftAktif = '';
 let metodeBayar = 'QRIS';
 let jenisMenuAktif = 'Minuman';
 
+// CONFIG OWNER & LISENSI - UDAH GUA ISI NOMOR LU
+const NO_WA_OWNER = '6285733333344'; // WA Owner buat laporan
+const NO_WA_DEV = '62895351432524'; // WA Developer - Nomor lu prof
+const NAMA_WARKOP = 'WARKOP SINGO';
+const TANGGAL_EXPIRED = '2026-12-31'; // FORMAT: YYYY-MM-DD. GANTI KALO MAU
+
+document.getElementById('namaWarkop').innerText = NAMA_WARKOP;
+document.getElementById('namaOwner').innerText = NO_WA_OWNER;
+
+// CEK LISENSI
+function cekLisensi(){
+  const today = new Date();
+  const expired = new Date(TANGGAL_EXPIRED);
+  const selisih = Math.ceil((expired - today) / (1000 * 60 * 60 * 24));
+  
+  document.getElementById('masaAktif').innerText = expired.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'});
+  
+  if(selisih < 0){
+    // EXPIRED
+    document.getElementById('statusLisensi').innerText = 'EXPIRED';
+    document.getElementById('statusLisensi').style.color = '#d32f2f';
+    document.getElementById('boxLisensi').style.background = '#ffebee';
+    document.getElementById('boxLisensi').style.borderColor = '#f44336';
+    document.getElementById('sisaHari').innerHTML = `<b style="color:#d32f2f">Lisensi sudah habis!</b><br>`;
+    document.getElementById('btnPerpanjang').style.display = 'block';
+    document.getElementById('overlayExpired').style.display = 'block';
+    return false;
+  } else {
+    // AKTIF
+    document.getElementById('sisaHari').innerHTML = `Sisa: <b>${selisih} hari lagi</b><br>`;
+    if(selisih <= 7){
+      document.getElementById('boxLisensi').style.background = '#fff8e1';
+      document.getElementById('boxLisensi').style.borderColor = '#ff9800';
+      document.getElementById('btnPerpanjang').style.display = 'block';
+    }
+    return true;
+  }
+}
+
+function perpanjangLisensi(){
+  let pesan = `*PERPANJANG LISENSI*%0A%0A`;
+  pesan += `Halo Dev, saya mau perpanjang lisensi:%0A`;
+  pesan += `Warkop: ${NAMA_WARKOP}%0A`;
+  pesan += `Expired: ${new Date(TANGGAL_EXPIRED).toLocaleDateString('id-ID')}%0A`;
+  pesan += `Kasir: ${kasirAktif || 'Belum login'}%0A%0A`;
+  pesan += `Mohon infonya 🙏`;
+  
+  window.open(`https://wa.me/62895351432524${NO_WA_DEV}?text=${pesan}`,'_blank');
+}
+
 function detectShift(){
   const jam = new Date().getHours();
   if(jam >= 6 && jam < 14) return 'Pagi';
@@ -230,6 +305,7 @@ function detectShift(){
 document.getElementById('shiftKasir').value = detectShift();
 
 function login(){
+  if(!cekLisensi()) return;
   const nama = document.getElementById('namaKasir').value.trim();
   if(!nama) return alert('Masukkan nama kasir!');
   kasirAktif = nama;
@@ -255,13 +331,15 @@ function logout(){
 }
 
 if(localStorage.getItem('kasirAktif')){
-  kasirAktif = localStorage.getItem('kasirAktif');
-  shiftAktif = localStorage.getItem('shiftAktif');
-  document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('infoKasir').innerText = kasirAktif;
-  document.getElementById('infoShift').innerText = shiftAktif;
-  document.getElementById('infoTanggal').innerText = new Date().toLocaleDateString('id-ID');
+  if(cekLisensi()){
+    kasirAktif = localStorage.getItem('kasirAktif');
+    shiftAktif = localStorage.getItem('shiftAktif');
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('infoKasir').innerText = kasirAktif;
+    document.getElementById('infoShift').innerText = shiftAktif;
+    document.getElementById('infoTanggal').innerText = new Date().toLocaleDateString('id-ID');
+  }
 }
 
 function gantiTab(el,tab){
@@ -467,6 +545,30 @@ function exportExcel(){
   XLSX.writeFile(wb,`Laporan_Warkop_${new Date().toLocaleDateString('id-ID')}.xlsx`);
 }
 
+function kirimWA(){
+  if(transaksi.length==0) return alert('Belum ada transaksi!');
+  
+  let hariIni = new Date().toLocaleDateString('id-ID');
+  let trxHariIni = transaksi.filter(t=>t.tanggal.includes(hariIni));
+  let omset = trxHariIni.reduce((sum,t)=>sum+t.total,0);
+  
+  let pesan = `*LAPORAN WARKOP SINGO*%0A`;
+  pesan += `📅 Tanggal: ${hariIni}%0A`;
+  pesan += `👤 Kasir: ${kasirAktif}%0A`;
+  pesan += `⏰ Shift: ${shiftAktif}%0A%0A`;
+  pesan += `💰 *Omset Hari Ini: Rp ${omset.toLocaleString()}*%0A`;
+  pesan += `📊 Total Transaksi: ${trxHariIni.length}%0A%0A`;
+  pesan += `*Detail Transaksi:*%0A`;
+  
+  trxHariIni.forEach((t,i)=>{
+    pesan += `${i+1}. ${t.menu} x${t.qty} - Rp ${t.total.toLocaleString()} (${t.metode})%0A`;
+  });
+  
+  pesan += `%0A_Dikirim dari Aplikasi Kasir Digital_`;
+  
+  window.open(`https://wa.me/${NO_WA_OWNER}?text=${pesan}`,'_blank');
+}
+
 function hapusSemuaLaporan(){
   if(confirm('Yakin hapus semua data transaksi? Data tidak bisa dikembalikan!')){
     transaksi = [];
@@ -476,8 +578,10 @@ function hapusSemuaLaporan(){
   }
 }
 
+// CEK LISENSI PAS PERTAMA BUKA
+cekLisensi();
 tampilSemuaMenu();
 updateLaporan();
 </script>
 </body>
-        </html>
+  </html>
