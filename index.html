@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warkop Singo - Kasir Digital</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;background:#f5f5f5}
+    .login-box{max-width:400px;margin:100px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+    .login-box h2{text-align:center;color:#2e7d32;margin-bottom:20px}
+    .container{max-width:100%;margin:0 auto;background:white;min-height:100vh;display:none}
+    .header{background:#2e7d32;color:white;padding:15px}
+    .header-top{display:flex;justify-content:space-between;align-items:center}
+    .header-info{font-size:12px;margin-top:5px}
+    .tabs{display:flex;background:#4caf50}
+    .tab{flex:1;padding:12px;text-align:center;color:white;cursor:pointer;border:none;background:transparent;font-size:14px}
+    .tab.active{background:#2e7d32;font-weight:bold}
+    .section{display:none;padding:15px}
+    .section.active{display:block}
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:15px 0}
+    .menu-item{background:white;border:2px solid #e0e0e0;border-radius:8px;padding:10px;text-align:center;cursor:pointer;position:relative}
+    .menu-item:hover{border-color:#4caf50}
+    .menu-item h4{font-size:14px;margin-bottom:5px}
+    .harga{color:#2e7d32;font-weight:bold;font-size:16px}
+    .btn{padding:10px 15px;border:none;border-radius:5px;cursor:pointer;font-size:14px;margin:5px}
+    .btn-add{background:#4caf50;color:white}
+    .btn-export{background:#2196f3;color:white}
+    .btn-reset{background:#f44336;color:white}
+    .btn-logout{background:#ff9800;color:white;font-size:12px;padding:5px 10px}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000}
+    .modal-content{background:white;margin:10% auto;padding:20px;width:90%;max-width:400px;border-radius:8px}
+    .form-group{margin:15px 0}
+    .form-group label{display:block;margin-bottom:5px;font-weight:bold}
+    .form-group input,.form-group select{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px}
+    .total-section{background:#e8f5e9;padding:15px;border-radius:8px;margin:15px 0}
+    .keranjang-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}
+    .laporan-table{width:100%;border-collapse:collapse;margin:15px 0;font-size:12px}
+    .laporan-table th,.laporan-table td{border:1px solid #ddd;padding:8px;text-align:left}
+    .laporan-table th{background:#f5f5f5}
+    .qr-container{text-align:center;margin:15px 0}
+    .qr-container img{max-width:200px}
+    .shift-badge{background:#ff9800;color:white;padding:3px 8px;border-radius:12px;font-size:11px}
+    .metode-bayar{display:flex;gap:10px;margin:15px 0}
+    .metode-btn{flex:1;padding:15px;border:2px solid #ddd;border-radius:8px;text-align:center;cursor:pointer}
+    .metode-btn.active{border-color:#4caf50;background:#e8f5e9}
+    #cariMenu{width:100%;padding:10px;margin:10px 0;border:2px solid #ddd;border-radius:5px}
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="loginBox" class="login-box">
+    <h2>☕ WARKOP SINGO</h2>
+    <div class="form-group">
+      <label>Nama Kasir:</label>
+      <input type="text" id="namaKasir" placeholder="Masukkan nama anda">
+    </div>
+    <div class="form-group">
+      <label>Shift:</label>
+      <select id="shiftKasir">
+        <option value="Pagi">Pagi (06:00 - 14:00)</option>
+        <option value="Siang">Siang (14:00 - 22:00)</option>
+        <option value="Malam">Malam (22:00 - 06:00)</option>
+      </select>
+    </div>
+    <button class="btn btn-add" onclick="login()" style="width:100%">MASUK</button>
+  </div>
+
+  <!-- APLIKASI -->
+  <div id="app" class="container">
+    <div class="header">
+      <div class="header-top">
+        <h1>☕ WARKOP SINGO</h1>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+      <div class="header-info">
+        Kasir: <span id="infoKasir">-</span> | 
+        Shift: <span id="infoShift" class="shift-badge">-</span> | 
+        <span id="infoTanggal">-</span>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="gantiTab(this,'kasir')">Kasir</button>
+      <button class="tab" onclick="gantiTab(this,'tambah')">Tambah Menu</button>
+      <button class="tab" onclick="gantiTab(this,'laporan')">Laporan</button>
+    </div>
+
+    <div id="kasir" class="section active">
+      <input type="text" id="cariMenu" placeholder="🔍 Ketik nama menu..." onkeyup="cariMenu()">
+      <h4 style="margin-top:15px">Daftar Menu:</h4>
+      <div class="menu-grid" id="daftarMenu"></div>
+      <div class="total-section">
+        <h3>Keranjang:</h3>
+        <div id="daftarKeranjang"></div>
+        <hr style="margin:10px 0">
+        <h2>Total: Rp <span id="totalHarga">0</span></h2>
+        <button class="btn btn-add" onclick="bukaModalBayar()" style="width:100%">💰 BAYAR</button>
+      </div>
+    </div>
+
+    <div id="tambah" class="section">
+      <div style="display:flex;gap:10px;margin-bottom:15px">
+        <button class="btn btn-add" onclick="bukaModalMenu('Minuman')" style="flex:1">+ Minuman</button>
+        <button class="btn btn-add" onclick="bukaModalMenu('Rokok')" style="flex:1">+ Rokok</button>
+      </div>
+      <h4>Menu Minuman:</h4>
+      <div class="menu-grid" id="listMinuman"></div>
+      <h4 style="margin-top:20px">Menu Rokok:</h4>
+      <div class="menu-grid" id="listRokok"></div>
+    </div>
+
+    <div id="laporan" class="section">
+      <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap">
+        <button class="btn btn-export" onclick="exportExcel()">📊 Export Excel</button>
+        <button class="btn btn-reset" onclick="hapusSemuaLaporan()">🗑️ Hapus Data</button>
+      </div>
+      <div style="display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap">
+        <div style="background:#e3f2fd;padding:10px;border-radius:5px;flex:1">
+          <div style="font-size:12px;color:#666">Omset Hari Ini</div>
+          <div style="font-size:18px;font-weight:bold;color:#1976d2">Rp <span id="omsetHari">0</span></div>
+        </div>
+        <div style="background:#e8f5e9;padding:10px;border-radius:5px;flex:1">
+          <div style="font-size:12px;color:#666">Total Transaksi</div>
+          <div style="font-size:18px;font-weight:bold;color:#2e7d32"><span id="totalTrx">0</span></div>
+        </div>
+      </div>
+      <table class="laporan-table">
+        <thead>
+          <tr><th>Tanggal</th><th>Kasir</th><th>Shift</th><th>Menu</th><th>Qty</th><th>Bayar</th><th>Total</th></tr>
+        </thead>
+        <tbody id="tabelLaporan"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL BAYAR -->
+  <div id="modalBayar" class="modal">
+    <div class="modal-content">
+      <h3>Pilih Metode Pembayaran</h3>
+      <div class="metode-bayar">
+        <div class="metode-btn active" onclick="pilihMetode('QRIS')" id="btnQRIS">
+          <div style="font-size:24px">📱</div>
+          <div>QRIS</div>
+        </div>
+        <div class="metode-btn" onclick="pilihMetode('Cash')" id="btnCash">
+          <div style="font-size:24px">💵</div>
+          <div>CASH</div>
+        </div>
+      </div>
+      <div id="qrisSection" class="qr-container">
+        <p>Scan QRIS:</p>
+        <img src="https://i.ibb.co/7Yj8H6p/qris.png" alt="QRIS">
+        <p style="font-size:12px;margin-top:10px">WARKOP SINGO</p>
+      </div>
+      <div id="cashSection" style="display:none;text-align:center;margin:15px 0">
+        <h2>Total: Rp <span id="totalCash">0</span></h2>
+      </div>
+      <button class="btn btn-add" onclick="selesaiBayar()" style="width:100%">✅ SELESAI BAYAR</button>
+      <button class="btn" onclick="tutupModalBayar()" style="width:100%">Batal</button>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH MENU -->
+  <div id="modalMenu" class="modal">
+    <div class="modal-content">
+      <h3 id="judulModalMenu">Tambah Menu</h3>
+      <div class="form-group">
+        <label>Nama Menu:</label>
+        <input type="text" id="namaMenuBaru">
+      </div>
+      <div class="form-group">
+        <label>Harga:</label>
+        <input type="number" id="hargaMenuBaru">
+      </div>
+      <button class="btn btn-add" onclick="simpanMenuBaru()">Simpan</button>
+      <button class="btn" onclick="tutupModalMenu()">Batal</button>
+    </div>
+  </div>
+
+<script>
+let menuMinuman = JSON.parse(localStorage.getItem('menuMinuman')) || [];
+let menuRokok = JSON.parse(localStorage.getItem('menuRokok')) || [];
+let transaksi = JSON.parse(localStorage.getItem('transaksiWarkop')) || [];
+let keranjang = [];
+let kasirAktif = '';
+let shiftAktif = '';
+let metodeBayar = 'QRIS';
+let jenisMenuAktif = 'Minuman';
+
+// AUTO DETECT SHIFT
+function detectShift(){
+  const jam = new Date().getHours();
+  if(jam >= 6 && jam < 14) return 'Pagi';
+  if(jam >= 14 && jam < 22) return 'Siang';
+  return 'Malam';
+}
+document.getElementById('shiftKasir').value = detectShift();
+
+// LOGIN
+function login(){
+  const nama = document.getElementById('namaKasir').value.trim();
+  if(!nama) return alert('Masukkan nama kasir!');
+  kasirAktif = nama;
+  shiftAktif = document.getElementById('shiftKasir').value;
+  localStorage.setItem('kasirAktif',kasirAktif);
+  localStorage.setItem('shiftAktif',shiftAktif);
+  
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('infoKasir').innerText = kasirAktif;
+  document.getElementById('infoShift').innerText = shiftAktif;
+  document.getElementById('infoTanggal').innerText = new Date().toLocaleDateString('id-ID');
+  tampilSemuaMenu();
+  updateLaporan();
+}
+
+function logout(){
+  if(confirm('Yakin logout?')){
+    kasirAktif = '';
+    shiftAktif = '';
+    localStorage.removeItem('kasirAktif');
+    localStorage.removeItem('shiftAktif');
+    document.getElementById('loginBox').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('namaKasir').value = '';
+  }
+}
+
+// CEK LOGIN OTOMATIS
+if(localStorage.getItem('kasirAktif')){
+  kasirAktif = localStorage.getItem('kasirAktif');
+  shiftAktif = localStorage.getItem('shiftAktif');
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('infoKasir').innerText = kasirAktif;
+  document.getElementById('infoShift').innerText = shiftAktif;
+  document.getElementById('infoTanggal').innerText = new Date().toLocaleDateString('id-ID');
+}
+
+function gantiTab(el,tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tab).classList.add('active');
+  if(tab=='laporan') updateLaporan();
+}
+
+function tampilSemuaMenu(){
+  const semua = [...menuMinuman.map(m=>({...m,jenis:'Minuman'})),...menuRokok.map(m=>({...m,jenis:'Rokok'}))];
+  tampilMenuGrid('daftarMenu',semua,false);
+  tampilMenuGrid('listMinuman',menuMinuman.map(m=>({...m,jenis:'Minuman'})),true);
+  tampilMenuGrid('listRokok',menuRokok.map(m=>({...m,jenis:'Rokok'})),true);
+}
+
+function tampilMenuGrid(id,data,bisaHapus){
+  const grid = document.getElementById(id);
+  grid.innerHTML = '';
+  if(data.length==0) grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">Belum ada menu. Tambah dulu di tab "Tambah Menu"</p>';
+  data.forEach((m,i)=>{
+    let tombolHapus = bisaHapus? `<button onclick="hapusMenu('${m.jenis}',${i})" style="position:absolute;top:5px;right:5px;background:#f44336;color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">×</button>` : '';
+    grid.innerHTML += `
+      <div class="menu-item" onclick="tambahKeKeranjang('${m.nama}',${m.harga},'${m.jenis}')">
+        ${tombolHapus}
+        <h4>${m.nama}</h4>
+        <div class="harga">Rp ${m.harga.toLocaleString()}</div>
+        <div style="font-size:11px;color:#666;margin-top:5px">${m.jenis}</div>
+      </div>
+    `;
+  });
+}
+
+function tambahKeKeranjang(nama,harga,jenis){
+  let cek = keranjang.find(k=>k.nama==nama);
+  if(cek) cek.qty++;
+  else keranjang.push({nama,harga,qty:1,jenis});
+  updateKeranjang();
+}
+
+function updateKeranjang(){
+  const div = document.getElementById('daftarKeranjang');
+  div.innerHTML = '';
+  let total = 0;
+  keranjang.forEach((k,i)=>{
+    let subtotal = k.harga * k.qty;
+    total += subtotal;
+    div.innerHTML += `
+      <div class="keranjang-item">
+        <span>${k.nama} x${k.qty}</span>
+        <span>Rp ${subtotal.toLocaleString()} <button onclick="hapusKeranjang(${i})" style="color:red;border:none;background:none;font-size:18px;cursor:pointer">×</button></span>
+      </div>
+    `;
+  });
+  document.getElementById('totalHarga').innerText = total.toLocaleString();
+  document.getElementById('totalCash').innerText = total.toLocaleString();
+}
+
+function hapusKeranjang(i){
+  keranjang.splice(i,1);
+  updateKeranjang();
+}
+
+function bukaModalBayar(){
+  if(keranjang.length==0) return alert('Keranjang kosong!');
+  document.getElementById('modalBayar').style.display = 'block';
+}
+
+function pilihMetode(metode){
+  metodeBayar = metode;
+  document.querySelectorAll('.metode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn'+metode).classList.add('active');
+  document.getElementById('qrisSection').style.display = metode=='QRIS'?'block':'none';
+  document.getElementById('cashSection').style.display = metode=='Cash'?'block':'none';
+}
+
+function tutupModalBayar(){
+  document.getElementById('modalBayar').style.display = 'none';
+}
+
+function selesaiBayar(){
+  keranjang.forEach(k=>{
+    transaksi.push({
+      tanggal: new Date().toLocaleString('id-ID'),
+      kasir: kasirAktif,
+      shift: shiftAktif,
+      menu: k.nama,
+      jenis: k.jenis,
+      qty: k.qty,
+      metode: metodeBayar,
+      total: k.harga * k.qty
+    });
+  });
+  localStorage.setItem('transaksiWarkop',JSON.stringify(transaksi));
+  keranjang = [];
+  updateKeranjang();
+  tutupModalBayar();
+  alert('Pembayaran berhasil!');
+}
+
+function bukaModalMenu(jenis){
+  jenisMenuAktif = jenis;
+  document.getElementById('judulModalMenu').innerText = `Tambah Menu ${jenis}`;
+  document.getElementById('modalMenu').style.display = 'block';
+  document.getElementById('namaMenuBaru').value = '';
+  document.getElementById('hargaMenuBaru').value = '';
+}
+
+function tutupModalMenu(){
+  document.getElementById('modalMenu').style.display = 'none';
+}
+
+function simpanMenuBaru(){
+  const nama = document.getElementById('namaMenuBaru').value.trim();
+  const harga = parseInt(document.getElementById('hargaMenuBaru').value);
+  if(!nama ||!harga) return alert('Isi nama dan harga!');
+  
+  if(jenisMenuAktif=='Minuman'){
+    menuMinuman.push({nama,harga});
+    localStorage.setItem('menuMinuman',JSON.stringify(menuMinuman));
+  } else {
+    menuRokok.push({nama,harga});
+    localStorage.setItem('menuRokok',JSON.stringify(menuRokok));
+  }
+  tampilSemuaMenu();
+  tutupModalMenu();
+  alert('Menu berhasil ditambah!');
+}
+
+function hapusMenu(jenis,index){
+  event.stopPropagation();
+  if(!confirm('Hapus menu ini?')) return;
+  if(jenis=='Minuman'){
+    menuMinuman.splice(index,1);
+    localStorage.setItem('menuMinuman',JSON.stringify(menuMinuman));
+  } else {
+    menuRokok.splice(index,1);
+    localStorage.setItem('menuRokok',JSON.stringify(menuRokok));
+  }
+  tampilSemuaMenu();
+}
+
+function cariMenu(){
+  const keyword = document.getElementById('cariMenu').value.toLowerCase();
+  const semua = [...menuMinuman.map(m=>({...m,jenis:'Minuman'})),...menuRokok.map(m=>({...m,jenis:'Rokok'}))].filter(m=>m.nama.toLowerCase().includes(keyword));
+  tampilMenuGrid('daftarMenu',semua,false);
+}
+
+function updateLaporan(){
+  const tbody = document.getElementById('tabelLaporan');
+  tbody.innerHTML = '';
+  let total = 0;
+  let hariIni = new Date().toLocaleDateString('id-ID');
+  let omsetHariIni = 0;
+  
+  transaksi.forEach(t=>{
+    total += t.total;
+    if(t.tanggal.includes(hariIni)) omsetHariIni += t.total;
+    tbody.innerHTML += `
+      <tr>
+        <td>${t.tanggal}</td>
+        <td>${t.kasir}</td>
+        <td>${t.shift}</td>
+        <td>${t.menu}</td>
+        <td>${t.qty}</td>
+        <td>${t.metode}</td>
+        <td>Rp ${t.total.toLocaleString()}</td>
+      </tr>
+    `;
+  });
+  document.getElementById('omsetHari').innerText = omsetHariIni.toLocaleString();
+  document.getElementById('totalTrx').innerText = transaksi.length;
+}
+
+function exportExcel(){
+  const data = [['Tanggal','Kasir','Shift','Menu','Jenis','Qty','Metode Bayar','Total']];
+  transaksi.forEach(t=>{
+    data.push([t.tanggal,t.kasir,t.shift,t.menu,t.jenis,t.qty,t.metode,t.total]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Laporan');
+  XLSX.writeFile(wb,`Laporan_Warkop_${new Date().toLocaleDateString('id-ID')}.xlsx`);
+}
+
+function hapusSemuaLaporan(){
+  if(confirm('Yakin hapus semua data transaksi? Data tidak bisa dikembalikan!')){
+    transaksi = [];
+    localStorage.setItem('transaksiWarkop',JSON.stringify(transaksi));
+    updateLaporan();
+    alert('Semua data transaksi berhasil dihapus!');
+  }
+}
+
+tampilSemuaMenu();
+updateLaporan();
+</script>
+</body>
+</html>
