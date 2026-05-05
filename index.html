@@ -3,68 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warkop Singo - Kasir Digital</title>
+  <title>Warkop Singo - Kasir Digital Pro</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:Arial,sans-serif;background:#f5f5f5}
-    .login-box{max-width:400px;margin:100px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-    .login-box h2{text-align:center;color:#2e7d32;margin-bottom:20px}
-    .container{max-width:100%;margin:0 auto;background:white;min-height:100vh;display:none}
-    .header{background:#2e7d32;color:white;padding:15px}
-    .header-top{display:flex;justify-content:space-between;align-items:center}
-    .header-info{font-size:12px;margin-top:5px}
-    .tabs{display:flex;background:#4caf50}
-    .tab{flex:1;padding:12px;text-align:center;color:white;cursor:pointer;border:none;background:transparent;font-size:14px}
-    .tab.active{background:#2e7d32;font-weight:bold}
-    .section{display:none;padding:15px}
+    body{font-family:'Poppins',sans-serif;background:#f0f2f5;color:#1a1a1a}
+    .login-box{max-width:400px;margin:80px auto;background:white;padding:30px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.12)}
+    .login-box h2{text-align:center;color:#1b5e20;margin-bottom:8px;font-size:28px}
+    .login-box p{text-align:center;color:#666;margin-bottom:25px;font-size:14px}
+    .container{max-width:500px;margin:0 auto;background:#f0f2f5;min-height:100vh;display:none}
+    .header{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:white;padding:20px 15px 15px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .header-top h1{font-size:22px;font-weight:700}
+    .header-info{font-size:12px;opacity:0.9;display:flex;gap:10px;flex-wrap:wrap}
+    .badge{background:rgba(255,255,255,0.2);padding:4px 10px;border-radius:20px;font-size:11px}
+    .tabs{display:flex;background:white;margin:0 15px;border-radius:12px;position:relative;top:-15px;box-shadow:0 4px 12px rgba(0,0,0,0.08);overflow:hidden}
+    .tab{flex:1;padding:14px 5px;text-align:center;color:#666;cursor:pointer;border:none;background:transparent;font-size:13px;font-weight:600;transition:0.2s}
+    .tab.active{color:#2e7d32;background:#e8f5e9}
+    .section{display:none;padding:0 15px 20px}
     .section.active{display:block}
-    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:15px 0}
-    .menu-item{background:white;border:2px solid #e0e0e0;border-radius:8px;padding:10px;text-align:center;cursor:pointer;position:relative}
-    .menu-item:hover{border-color:#4caf50}
-    .menu-item h4{font-size:14px;margin-bottom:5px}
-    .harga{color:#2e7d32;font-weight:bold;font-size:16px}
-    .btn{padding:10px 15px;border:none;border-radius:5px;cursor:pointer;font-size:14px;margin:5px}
-    .btn-add{background:#4caf50;color:white}
-    .btn-export{background:#2196f3;color:white}
-    .btn-reset{background:#f44336;color:white}
-    .btn-logout{background:#ff9800;color:white;font-size:12px;padding:5px 10px}
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000}
-    .modal-content{background:white;margin:10% auto;padding:20px;width:90%;max-width:400px;border-radius:8px}
-    .form-group{margin:15px 0}
-    .form-group label{display:block;margin-bottom:5px;font-weight:bold}
-    .form-group input,.form-group select{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px}
-    .total-section{background:#e8f5e9;padding:15px;border-radius:8px;margin:15px 0}
-    .keranjang-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}
-    .laporan-table{width:100%;border-collapse:collapse;margin:15px 0;font-size:12px}
-    .laporan-table th,.laporan-table td{border:1px solid #ddd;padding:8px;text-align:left}
-    .laporan-table th{background:#f5f5f5}
-    .qr-container{text-align:center;margin:15px 0}
-    .qr-container img{max-width:200px}
-    .shift-badge{background:#ff9800;color:white;padding:3px 8px;border-radius:12px;font-size:11px}
-    .metode-bayar{display:flex;gap:10px;margin:15px 0}
-    .metode-btn{flex:1;padding:15px;border:2px solid #ddd;border-radius:8px;text-align:center;cursor:pointer}
+    .card{background:white;border-radius:16px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+    .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:15px 0}
+    .menu-item{background:#f8f9fa;border:2px solid #e9ecef;border-radius:12px;padding:15px 10px;text-align:center;cursor:pointer;transition:0.2s;position:relative}
+    .menu-item:active{transform:scale(0.95)}
+    .menu-item h4{font-size:13px;margin-bottom:6px;font-weight:600;color:#1a1a1a}
+    .harga{color:#2e7d32;font-weight:700;font-size:16px}
+    .jenis-badge{position:absolute;top:6px;left:6px;background:#e3f2fd;color:#1976d2;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:600}
+    .btn{padding:12px 20px;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;transition:0.2s;width:100%}
+    .btn:active{transform:scale(0.98)}
+    .btn-add{background:linear-gradient(135deg,#4caf50,#2e7d32);color:white;box-shadow:0 4px 12px rgba(76,175,80,0.3)}
+    .btn-export{background:linear-gradient(135deg,#2196f3,#1976d2);color:white}
+    .btn-reset{background:linear-gradient(135deg,#f44336,#d32f2f);color:white}
+    .btn-logout{background:rgba(255,255,255,0.2);color:white;font-size:12px;padding:6px 12px;width:auto;border-radius:8px}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;backdrop-filter:blur(4px)}
+    .modal-content{background:white;margin:15% auto;padding:25px;width:90%;max-width:400px;border-radius:20px;animation:slideUp 0.3s}
+    @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .form-group{margin:18px 0}
+    .form-group label{display:block;margin-bottom:8px;font-weight:600;font-size:14px;color:#333}
+    .form-group input,.form-group select{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:'Poppins'}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:#4caf50}
+    .keranjang-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+    .keranjang-nama{font-weight:600;font-size:14px}
+    .keranjang-qty{color:#666;font-size:12px}
+    .laporan-table{width:100%;border-collapse:collapse;margin:15px 0;font-size:11px}
+    .laporan-table th,.laporan-table td{border:1px solid #e0e0e0;padding:10px 6px;text-align:left}
+    .laporan-table th{background:#f8f9fa;font-weight:600}
+    .qr-container{text-align:center;margin:20px 0;padding:20px;background:#f8f9fa;border-radius:12px}
+    .qr-container img{max-width:220px;border-radius:8px}
+    .metode-bayar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+    .metode-btn{padding:20px;border:3px solid #e0e0e0;border-radius:16px;text-align:center;cursor:pointer;transition:0.2s}
     .metode-btn.active{border-color:#4caf50;background:#e8f5e9}
-    #cariMenu{width:100%;padding:10px;margin:10px 0;border:2px solid #ddd;border-radius:5px}
+    .metode-btn div:first-child{font-size:32px;margin-bottom:5px}
+    .metode-btn div:last-child{font-weight:600;font-size:14px}
+    #cariMenu{width:100%;padding:14px;border:2px solid #e0e0e0;border-radius:12px;font-size:14px;margin:10px 0;font-family:'Poppins'}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+    .stat-card{padding:15px;border-radius:12px}
+    .stat-label{font-size:11px;opacity:0.7;margin-bottom:4px}
+    .stat-value{font-size:20px;font-weight:700}
+    .empty-state{text-align:center;padding:40px 20px;color:#999}
+    .empty-state div{font-size:48px;margin-bottom:10px}
   </style>
 </head>
 <body>
   <!-- LOGIN -->
   <div id="loginBox" class="login-box">
     <h2>☕ WARKOP SINGO</h2>
+    <p>Kasir Digital Pro v2.0</p>
     <div class="form-group">
-      <label>Nama Kasir:</label>
+      <label>Nama Kasir</label>
       <input type="text" id="namaKasir" placeholder="Masukkan nama anda">
     </div>
     <div class="form-group">
-      <label>Shift:</label>
+      <label>Shift Kerja</label>
       <select id="shiftKasir">
         <option value="Pagi">Pagi (06:00 - 14:00)</option>
-        <option value="Siang">Siang (14:00 - 22:00)</option>
+        <option value="Sore">Sore (14:00 - 22:00)</option>
         <option value="Malam">Malam (22:00 - 06:00)</option>
       </select>
     </div>
-    <button class="btn btn-add" onclick="login()" style="width:100%">MASUK</button>
+    <button class="btn btn-add" onclick="login()">MASUK APLIKASI</button>
   </div>
 
   <!-- APLIKASI -->
@@ -75,107 +93,121 @@
         <button class="btn-logout" onclick="logout()">Logout</button>
       </div>
       <div class="header-info">
-        Kasir: <span id="infoKasir">-</span> | 
-        Shift: <span id="infoShift" class="shift-badge">-</span> | 
-        <span id="infoTanggal">-</span>
+        <span class="badge">👤 <span id="infoKasir">-</span></span>
+        <span class="badge">⏰ <span id="infoShift">-</span></span>
+        <span class="badge">📅 <span id="infoTanggal">-</span></span>
       </div>
     </div>
     
     <div class="tabs">
-      <button class="tab active" onclick="gantiTab(this,'kasir')">Kasir</button>
-      <button class="tab" onclick="gantiTab(this,'tambah')">Tambah Menu</button>
-      <button class="tab" onclick="gantiTab(this,'laporan')">Laporan</button>
+      <button class="tab active" onclick="gantiTab(this,'kasir')">💰 Kasir</button>
+      <button class="tab" onclick="gantiTab(this,'tambah')">➕ Menu</button>
+      <button class="tab" onclick="gantiTab(this,'laporan')">📊 Laporan</button>
     </div>
 
     <div id="kasir" class="section active">
-      <input type="text" id="cariMenu" placeholder="🔍 Ketik nama menu..." onkeyup="cariMenu()">
-      <h4 style="margin-top:15px">Daftar Menu:</h4>
-      <div class="menu-grid" id="daftarMenu"></div>
-      <div class="total-section">
-        <h3>Keranjang:</h3>
+      <div class="card">
+        <input type="text" id="cariMenu" placeholder="🔍 Cari menu..." onkeyup="cariMenu()">
+        <div class="menu-grid" id="daftarMenu"></div>
+      </div>
+      
+      <div class="card">
+        <h3 style="margin-bottom:15px;font-size:16px">🛒 Keranjang</h3>
         <div id="daftarKeranjang"></div>
-        <hr style="margin:10px 0">
-        <h2>Total: Rp <span id="totalHarga">0</span></h2>
-        <button class="btn btn-add" onclick="bukaModalBayar()" style="width:100%">💰 BAYAR</button>
+        <hr style="margin:15px 0;border:none;border-top:2px dashed #e0e0e0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+          <span style="font-size:14px;color:#666">Total Bayar</span>
+          <span style="font-size:24px;font-weight:700;color:#2e7d32">Rp <span id="totalHarga">0</span></span>
+        </div>
+        <button class="btn btn-add" onclick="bukaModalBayar()">💳 PROSES BAYAR</button>
       </div>
     </div>
 
     <div id="tambah" class="section">
-      <div style="display:flex;gap:10px;margin-bottom:15px">
-        <button class="btn btn-add" onclick="bukaModalMenu('Minuman')" style="flex:1">+ Minuman</button>
-        <button class="btn btn-add" onclick="bukaModalMenu('Rokok')" style="flex:1">+ Rokok</button>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+          <button class="btn btn-add" onclick="bukaModalMenu('Minuman')">☕ + Minuman</button>
+          <button class="btn btn-add" onclick="bukaModalMenu('Rokok')">🚬 + Rokok</button>
+        </div>
+        <h4 style="margin-bottom:10px;font-size:14px;color:#666">Menu Minuman</h4>
+        <div class="menu-grid" id="listMinuman"></div>
+        <h4 style="margin:20px 0 10px;font-size:14px;color:#666">Menu Rokok</h4>
+        <div class="menu-grid" id="listRokok"></div>
       </div>
-      <h4>Menu Minuman:</h4>
-      <div class="menu-grid" id="listMinuman"></div>
-      <h4 style="margin-top:20px">Menu Rokok:</h4>
-      <div class="menu-grid" id="listRokok"></div>
     </div>
 
     <div id="laporan" class="section">
-      <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap">
-        <button class="btn btn-export" onclick="exportExcel()">📊 Export Excel</button>
-        <button class="btn btn-reset" onclick="hapusSemuaLaporan()">🗑️ Hapus Data</button>
-      </div>
-      <div style="display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap">
-        <div style="background:#e3f2fd;padding:10px;border-radius:5px;flex:1">
-          <div style="font-size:12px;color:#666">Omset Hari Ini</div>
-          <div style="font-size:18px;font-weight:bold;color:#1976d2">Rp <span id="omsetHari">0</span></div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
+          <button class="btn btn-export" onclick="exportExcel()">📊 Export Excel</button>
+          <button class="btn btn-reset" onclick="hapusSemuaLaporan()">🗑️ Hapus Data</button>
         </div>
-        <div style="background:#e8f5e9;padding:10px;border-radius:5px;flex:1">
-          <div style="font-size:12px;color:#666">Total Transaksi</div>
-          <div style="font-size:18px;font-weight:bold;color:#2e7d32"><span id="totalTrx">0</span></div>
+        <div class="stats-grid">
+          <div class="stat-card" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb)">
+            <div class="stat-label">Omset Hari Ini</div>
+            <div class="stat-value" style="color:#1976d2">Rp <span id="omsetHari">0</span></div>
+          </div>
+          <div class="stat-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9)">
+            <div class="stat-label">Total Transaksi</div>
+            <div class="stat-value" style="color:#2e7d32"><span id="totalTrx">0</span></div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="laporan-table">
+            <thead>
+              <tr><th>Tanggal</th><th>Kasir</th><th>Shift</th><th>Menu</th><th>Qty</th><th>Bayar</th><th>Total</th></tr>
+            </thead>
+            <tbody id="tabelLaporan"></tbody>
+          </table>
         </div>
       </div>
-      <table class="laporan-table">
-        <thead>
-          <tr><th>Tanggal</th><th>Kasir</th><th>Shift</th><th>Menu</th><th>Qty</th><th>Bayar</th><th>Total</th></tr>
-        </thead>
-        <tbody id="tabelLaporan"></tbody>
-      </table>
     </div>
   </div>
 
   <!-- MODAL BAYAR -->
   <div id="modalBayar" class="modal">
     <div class="modal-content">
-      <h3>Pilih Metode Pembayaran</h3>
+      <h3 style="margin-bottom:5px">Metode Pembayaran</h3>
+      <p style="color:#666;font-size:13px;margin-bottom:15px">Total: Rp <span id="totalModal">0</span></p>
       <div class="metode-bayar">
         <div class="metode-btn active" onclick="pilihMetode('QRIS')" id="btnQRIS">
-          <div style="font-size:24px">📱</div>
+          <div>📱</div>
           <div>QRIS</div>
         </div>
         <div class="metode-btn" onclick="pilihMetode('Cash')" id="btnCash">
-          <div style="font-size:24px">💵</div>
+          <div>💵</div>
           <div>CASH</div>
         </div>
       </div>
       <div id="qrisSection" class="qr-container">
-        <p>Scan QRIS:</p>
-        <img src="https://i.ibb.co/7Yj8H6p/qris.png" alt="QRIS">
-        <p style="font-size:12px;margin-top:10px">WARKOP SINGO</p>
+        <p style="font-weight:600;margin-bottom:10px">Scan QRIS Warkop Singo</p>
+        <img src="https://i.ibb.co/7Yj8H6p/qris.png" alt="QRIS Warkop Singo">
+        <p style="font-size:11px;margin-top:10px;color:#666">Pastikan nominal sesuai</p>
       </div>
-      <div id="cashSection" style="display:none;text-align:center;margin:15px 0">
-        <h2>Total: Rp <span id="totalCash">0</span></h2>
+      <div id="cashSection" style="display:none;text-align:center;margin:20px 0">
+        <div style="font-size:14px;color:#666;margin-bottom:5px">Bayar Tunai</div>
+        <div style="font-size:32px;font-weight:700;color:#2e7d32">Rp <span id="totalCash">0</span></div>
       </div>
-      <button class="btn btn-add" onclick="selesaiBayar()" style="width:100%">✅ SELESAI BAYAR</button>
-      <button class="btn" onclick="tutupModalBayar()" style="width:100%">Batal</button>
+      <button class="btn btn-add" onclick="selesaiBayar()" style="margin-bottom:10px">✅ KONFIRMASI BAYAR</button>
+      <button class="btn" onclick="tutupModalBayar()" style="background:#f5f5f5;color:#666">Batal</button>
     </div>
   </div>
 
   <!-- MODAL TAMBAH MENU -->
   <div id="modalMenu" class="modal">
     <div class="modal-content">
-      <h3 id="judulModalMenu">Tambah Menu</h3>
+      <h3 id="judulModalMenu" style="margin-bottom:5px">Tambah Menu</h3>
+      <p style="color:#666;font-size:13px;margin-bottom:15px">Isi data menu baru</p>
       <div class="form-group">
-        <label>Nama Menu:</label>
-        <input type="text" id="namaMenuBaru">
+        <label>Nama Menu</label>
+        <input type="text" id="namaMenuBaru" placeholder="Contoh: Kopi Susu">
       </div>
       <div class="form-group">
-        <label>Harga:</label>
-        <input type="number" id="hargaMenuBaru">
+        <label>Harga</label>
+        <input type="number" id="hargaMenuBaru" placeholder="Contoh: 5000">
       </div>
-      <button class="btn btn-add" onclick="simpanMenuBaru()">Simpan</button>
-      <button class="btn" onclick="tutupModalMenu()">Batal</button>
+      <button class="btn btn-add" onclick="simpanMenuBaru()" style="margin-bottom:10px">💾 SIMPAN MENU</button>
+      <button class="btn" onclick="tutupModalMenu()" style="background:#f5f5f5;color:#666">Batal</button>
     </div>
   </div>
 
@@ -189,16 +221,14 @@ let shiftAktif = '';
 let metodeBayar = 'QRIS';
 let jenisMenuAktif = 'Minuman';
 
-// AUTO DETECT SHIFT
 function detectShift(){
   const jam = new Date().getHours();
   if(jam >= 6 && jam < 14) return 'Pagi';
-  if(jam >= 14 && jam < 22) return 'Siang';
+  if(jam >= 14 && jam < 22) return 'Sore';
   return 'Malam';
 }
 document.getElementById('shiftKasir').value = detectShift();
 
-// LOGIN
 function login(){
   const nama = document.getElementById('namaKasir').value.trim();
   if(!nama) return alert('Masukkan nama kasir!');
@@ -218,17 +248,12 @@ function login(){
 
 function logout(){
   if(confirm('Yakin logout?')){
-    kasirAktif = '';
-    shiftAktif = '';
     localStorage.removeItem('kasirAktif');
     localStorage.removeItem('shiftAktif');
-    document.getElementById('loginBox').style.display = 'block';
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('namaKasir').value = '';
+    location.reload();
   }
 }
 
-// CEK LOGIN OTOMATIS
 if(localStorage.getItem('kasirAktif')){
   kasirAktif = localStorage.getItem('kasirAktif');
   shiftAktif = localStorage.getItem('shiftAktif');
@@ -257,15 +282,19 @@ function tampilSemuaMenu(){
 function tampilMenuGrid(id,data,bisaHapus){
   const grid = document.getElementById(id);
   grid.innerHTML = '';
-  if(data.length==0) grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">Belum ada menu. Tambah dulu di tab "Tambah Menu"</p>';
+  if(data.length==0){
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div>📦</div><p>Belum ada menu</p></div>';
+    return;
+  }
   data.forEach((m,i)=>{
-    let tombolHapus = bisaHapus? `<button onclick="hapusMenu('${m.jenis}',${i})" style="position:absolute;top:5px;right:5px;background:#f44336;color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">×</button>` : '';
+    let tombolHapus = bisaHapus? `<button onclick="hapusMenu('${m.jenis}',${i})" style="position:absolute;top:6px;right:6px;background:#f44336;color:white;border:none;border-radius:50%;width:24px;height:24px;font-size:14px;cursor:pointer;z-index:10">×</button>` : '';
+    let badgeJenis = `<div class="jenis-badge">${m.jenis}</div>`;
     grid.innerHTML += `
       <div class="menu-item" onclick="tambahKeKeranjang('${m.nama}',${m.harga},'${m.jenis}')">
         ${tombolHapus}
+        ${badgeJenis}
         <h4>${m.nama}</h4>
         <div class="harga">Rp ${m.harga.toLocaleString()}</div>
-        <div style="font-size:11px;color:#666;margin-top:5px">${m.jenis}</div>
       </div>
     `;
   });
@@ -282,18 +311,28 @@ function updateKeranjang(){
   const div = document.getElementById('daftarKeranjang');
   div.innerHTML = '';
   let total = 0;
+  if(keranjang.length==0){
+    div.innerHTML = '<p style="text-align:center;color:#999;padding:20px;font-size:13px">Keranjang kosong</p>';
+  }
   keranjang.forEach((k,i)=>{
     let subtotal = k.harga * k.qty;
     total += subtotal;
     div.innerHTML += `
       <div class="keranjang-item">
-        <span>${k.nama} x${k.qty}</span>
-        <span>Rp ${subtotal.toLocaleString()} <button onclick="hapusKeranjang(${i})" style="color:red;border:none;background:none;font-size:18px;cursor:pointer">×</button></span>
+        <div>
+          <div class="keranjang-nama">${k.nama}</div>
+          <div class="keranjang-qty">Rp ${k.harga.toLocaleString()} x ${k.qty}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-weight:700;color:#2e7d32">Rp ${subtotal.toLocaleString()}</span>
+          <button onclick="hapusKeranjang(${i})" style="color:#f44336;border:none;background:none;font-size:20px;cursor:pointer;width:30px;height:30px">×</button>
+        </div>
       </div>
     `;
   });
   document.getElementById('totalHarga').innerText = total.toLocaleString();
   document.getElementById('totalCash').innerText = total.toLocaleString();
+  document.getElementById('totalModal').innerText = total.toLocaleString();
 }
 
 function hapusKeranjang(i){
@@ -335,7 +374,8 @@ function selesaiBayar(){
   keranjang = [];
   updateKeranjang();
   tutupModalBayar();
-  alert('Pembayaran berhasil!');
+  alert('✅ Pembayaran berhasil!');
+  updateLaporan();
 }
 
 function bukaModalMenu(jenis){
@@ -364,7 +404,7 @@ function simpanMenuBaru(){
   }
   tampilSemuaMenu();
   tutupModalMenu();
-  alert('Menu berhasil ditambah!');
+  alert('✅ Menu berhasil ditambah!');
 }
 
 function hapusMenu(jenis,index){
@@ -392,6 +432,10 @@ function updateLaporan(){
   let total = 0;
   let hariIni = new Date().toLocaleDateString('id-ID');
   let omsetHariIni = 0;
+  
+  if(transaksi.length==0){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#999">Belum ada transaksi</td></tr>';
+  }
   
   transaksi.forEach(t=>{
     total += t.total;
@@ -428,7 +472,7 @@ function hapusSemuaLaporan(){
     transaksi = [];
     localStorage.setItem('transaksiWarkop',JSON.stringify(transaksi));
     updateLaporan();
-    alert('Semua data transaksi berhasil dihapus!');
+    alert('✅ Semua data transaksi berhasil dihapus!');
   }
 }
 
@@ -436,4 +480,4 @@ tampilSemuaMenu();
 updateLaporan();
 </script>
 </body>
-</html>
+        </html>
