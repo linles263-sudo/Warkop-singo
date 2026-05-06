@@ -1,0 +1,26 @@
+{
+  "name": "warkop-singo",
+  "version": "1.0.0",
+  "description": "Kasir-warkop-singo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linles263-sudo/Warkop-singo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/linles263-sudo/Warkop-singo/issues"
+  },
+  "homepage": "https://github.com/linles263-sudo/Warkop-singo#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
